@@ -107,13 +107,16 @@ sub debug {
 sub profiler {
     my $driver = shift;
     my ($sql) = @_;
-    $PROFILER ||= eval {
-        require Data::ObjectDriver::Profiler;
-        Data::ObjectDriver::Profiler->new;
-    };
-    return $PROFILE = 0 if $@ || !$PROFILER;
+    if ( !defined $PROFILER ) {
+        $PROFILER = eval {
+            require Data::ObjectDriver::Profiler;
+            Data::ObjectDriver::Profiler->new;
+        };
+        return $PROFILER = $PROFILE = 0
+            if $@ || !$PROFILER;
+    }
     return $PROFILER unless @_;
-    $PROFILER->record_query($driver, $sql);
+    $PROFILER->record_query( $driver, $sql );
 }
 
 sub list_or_iterator {
